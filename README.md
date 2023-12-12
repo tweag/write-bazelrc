@@ -1,5 +1,7 @@
 # Write / update a bazelrc file
 
+[![Continuous Integration](https://github.com/tweag/write-bazelrc/actions/workflows/ci.yaml/badge.svg?event=schedule)](https://github.com/tweag/write-bazelrc/actions/workflows/ci.yaml)
+
 GitHub action to write / append content to a bazelrc file.
 
 ## Usage
