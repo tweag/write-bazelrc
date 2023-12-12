@@ -1,0 +1,52 @@
+name: Continuous integration
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+  workflow_dispatch: # allows manual triggering
+  schedule:
+    - cron: '1 11 * * *'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  unit-test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write to default location (.bazelrc.local)
+        uses: ./
+        with:
+          content: |
+            build --config=foo
+            build --config=bar
+      - name: Verify write to default location (.bazelrc.local)
+        run: |
+          actual="$(<.bazelrc.local)"
+          expected="$(cat <<-EOF
+          build --config=foo
+          build --config=bar
+          EOF
+          )"
+          [[ "${actual}" == "${expected}" ]] || \
+            (echo >&2 "default location write does not match"; exit 1)
+
+      - name: Write to non-default location
+        uses: ./
+        with:
+          bazelrc_path: .bazelrc.auth
+          content: build:chicken --config=cow
+      - name: Verify write to non-default location
+        run: |
+          actual="$(<.bazelrc.auth)"
+          expected="$(cat <<-EOF
+          build:chicken --config=cow
+          EOF
+          )"
+          [[ "${actual}" == "${expected}" ]] || \
+            (echo >&2 "default location write does not match"; exit 1)
